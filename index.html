@@ -58,8 +58,6 @@
   .star-row { display: flex; gap: 8px; flex-wrap: wrap; }
   .star-chip { background: #fafafa; border: 2px solid var(--border); color: var(--text-sub); border-radius: 20px; padding: 8px 14px; font-size: 13px; cursor: pointer; font-weight: 700; }
   .star-chip.active { background: #e6a000; border-color: #e6a000; color: #fff; }
-
-  /* モーダル */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; }
   .modal-overlay.active { display: block; }
   .modal { position: absolute; bottom: 0; left: 0; right: 0; background: var(--surface); border-radius: 20px 20px 0 0; max-height: 88vh; display: flex; flex-direction: column; }
@@ -70,23 +68,15 @@
   .modal-dist { font-size: 13px; color: var(--accent); font-weight: 700; }
   .modal-rating { font-size: 13px; color: #e6a000; font-weight: 700; }
   .modal-count { font-size: 12px; color: var(--text-dim); }
-
-  /* タブ */
   .tab-bar { display: flex; border-bottom: 2px solid var(--border); margin-top: 14px; flex-shrink: 0; }
   .tab-btn { flex: 1; padding: 10px 4px; font-size: 13px; font-weight: 700; color: var(--text-dim); background: none; border: none; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
   .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-  /* タブコンテンツ */
   .tab-content { flex: 1; overflow-y: auto; }
   .tab-pane { display: none; }
   .tab-pane.active { display: block; }
-
-  /* 写真タブ */
   .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 12px; }
   .photo-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; cursor: pointer; }
   .photo-grid img:first-child { grid-column: 1 / -1; aspect-ratio: 16/9; }
-
-  /* 口コミタブ */
   .reviews-wrap { padding: 12px; }
   .review { background: #fafafa; border-radius: 10px; padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
   .review-author { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
@@ -94,8 +84,6 @@
   .review-text { font-size: 13px; color: var(--text-sub); line-height: 1.6; }
   .review-time { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
   .no-content { text-align: center; padding: 30px 16px; color: var(--text-dim); font-size: 13px; }
-
-  /* 基本情報タブ */
   .info-wrap { padding: 12px; }
   .info-row { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
   .info-row:last-child { border-bottom: none; }
@@ -105,18 +93,9 @@
   .info-value a { color: var(--accent); text-decoration: none; }
   .hours-item { font-size: 13px; color: var(--text-sub); line-height: 1.8; }
   .hours-today { color: var(--accent); font-weight: 700; }
-
-  /* マップボタン */
   .modal-map-btn { display: block; width: calc(100% - 24px); margin: 8px 12px 16px; background: var(--accent); color: #fff; border: none; border-radius: 12px; padding: 15px; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center; flex-shrink: 0; }
   .modal-map-btn:active { background: var(--accent-dark); }
-
   .mini-spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 20px auto; }
-  .key-actions { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
-  .btn-sm { background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: 7px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
-  .btn-sm:active { background: var(--accent-dark); }
-  .btn-sm-ghost { background: #fff; color: var(--accent2); border: 2px solid var(--accent2); }
-  .key-saved-badge { font-size: 12px; color: #006600; font-weight: 700; display: none; }
-  .key-saved-badge.visible { display: inline; }
 </style>
 </head>
 <body>
@@ -128,26 +107,31 @@
 
 <div class="panel">
   <div class="label">Google Maps APIキー</div>
-  <input class="input" id="apiKey" type="password" placeholder="AIza..." autocomplete="off">
-  <div class="key-actions">
-    <button class="btn-sm" onclick="saveApiKey()">保存</button>
-    <button class="btn-sm btn-sm-ghost" onclick="clearApiKey()">クリア</button>
-    <span class="key-saved-badge" id="keySavedBadge">✓ 保存済み</span>
+  <input class="input" id="apiKey" type="password" placeholder="AIza..." autocomplete="off" style="margin-bottom:8px">
+  <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+    <input type="checkbox" id="saveKey" style="width:18px;height:18px;cursor:pointer">
+    <label for="saveKey" style="font-size:13px;color:#444;cursor:pointer">APIキーを保存する（次回自動入力）</label>
   </div>
+
   <div class="section-divider"></div>
+
   <div class="label">📍 現在地を使う</div>
   <button class="btn btn-ghost" onclick="useGPS()" style="width:100%">GPSで現在地を取得</button>
+
   <div class="section-divider"></div>
+
   <div class="label">🔍 地名・住所から</div>
   <div class="row">
     <input class="input" id="placeQuery" placeholder="例: 東京駅、渋谷">
     <button class="btn" onclick="searchByName()">設定</button>
   </div>
+
   <div class="label">📐 緯度・経度</div>
   <div class="row">
     <input class="input" id="latInput" placeholder="緯度 35.6812">
     <input class="input" id="lngInput" placeholder="経度 139.7671">
   </div>
+
   <details>
     <summary>▸ 緯度経度の調べ方</summary>
     <div class="help">
@@ -156,7 +140,9 @@
       3. このアプリに貼り付け
     </div>
   </details>
+
   <div class="section-divider"></div>
+
   <div class="label">検索範囲</div>
   <div class="radius-row">
     <div class="chip" onclick="setRadius(50,this)">50m</div>
@@ -164,6 +150,7 @@
     <div class="chip active" onclick="setRadius(500,this)">500m</div>
     <div class="chip" onclick="setRadius(1000,this)">1km</div>
   </div>
+
   <div class="label" style="margin-top:14px">⭐ 最低評価</div>
   <div class="star-row">
     <div class="star-chip active" onclick="setMinRating(0,this)">すべて</div>
@@ -172,8 +159,10 @@
     <div class="star-chip" onclick="setMinRating(4,this)">4.0以上</div>
     <div class="star-chip" onclick="setMinRating(4.5,this)">4.5以上</div>
   </div>
+
   <div class="label" style="margin-top:14px">🏷️ ジャンル（任意）</div>
   <input class="input" id="keywordInput" placeholder="例: カフェ、ラーメン、公園、神社" autocomplete="off">
+
   <div style="margin-top:16px">
     <button class="btn" id="btnSearch" onclick="doSearch()" style="width:100%;padding:14px">🔎 周辺の写真を探す</button>
   </div>
@@ -204,7 +193,6 @@
         <button class="tab-btn" onclick="switchTab('info',this)">ℹ️ 基本情報</button>
       </div>
     </div>
-
     <div class="tab-content">
       <div class="tab-pane active" id="tab-photos">
         <div class="photo-grid" id="photoGrid"></div>
@@ -216,43 +204,26 @@
         <div class="info-wrap" id="infoWrap"></div>
       </div>
     </div>
-
     <button class="modal-map-btn" id="modalMapBtn">🗺️ Googleマップで開く</button>
   </div>
 </div>
 
 <script>
+// 起動時にAPIキーを復元
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('gmaps_api_key');
+  if (saved) {
+    document.getElementById('apiKey').value = saved;
+    document.getElementById('saveKey').checked = true;
+  }
+});
+
 let currentRadius = 500;
 let minRating = 0;
 let userLat = null, userLng = null;
 let apiKey = '';
 let mapsLoaded = false;
 let currentMapsUrl = '';
-
-const LS_KEY = 'gmaps_api_key';
-
-function loadSavedApiKey() {
-  const saved = localStorage.getItem(LS_KEY);
-  if (saved) {
-    document.getElementById('apiKey').value = saved;
-    document.getElementById('keySavedBadge').classList.add('visible');
-  }
-}
-function saveApiKey() {
-  const val = document.getElementById('apiKey').value.trim();
-  if (!val) { showStatus('⚠️ APIキーを入力してください', 'error'); return; }
-  localStorage.setItem(LS_KEY, val);
-  document.getElementById('keySavedBadge').classList.add('visible');
-  showStatus('✓ APIキーを保存しました', 'ok');
-}
-function clearApiKey() {
-  localStorage.removeItem(LS_KEY);
-  document.getElementById('apiKey').value = '';
-  document.getElementById('keySavedBadge').classList.remove('visible');
-  showStatus('APIキーを削除しました', 'info');
-}
-
-window.addEventListener('DOMContentLoaded', loadSavedApiKey);
 
 function setRadius(r, el) {
   currentRadius = r;
@@ -272,31 +243,25 @@ function showStatus(msg, type) {
 function getApiKey() {
   apiKey = document.getElementById('apiKey').value.trim();
   if (!apiKey) { showStatus('⚠️ APIキーを入力してください', 'error'); return false; }
+  if (document.getElementById('saveKey').checked) {
+    localStorage.setItem('gmaps_api_key', apiKey);
+  } else {
+    localStorage.removeItem('gmaps_api_key');
+  }
   return true;
 }
-let PlaceClass = null;
-async function loadMapsAPI() {
-  if (mapsLoaded && PlaceClass) return;
-  if (!window.google?.maps?.importLibrary) {
-    await new Promise((resolve, reject) => {
-      const existing = document.getElementById('gmaps-script');
-      if (existing) existing.remove();
-      mapsLoaded = false; PlaceClass = null;
-      const script = document.createElement('script');
-      script.id = 'gmaps-script';
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=weekly&loading=async`;
-      script.async = true;
-      script.onload = resolve;
-      script.onerror = () => reject(new Error('Maps API読込失敗'));
-      document.head.appendChild(script);
-    });
-  }
-  const [placesLib] = await Promise.all([
-    google.maps.importLibrary('places'),
-    google.maps.importLibrary('geocoding')
-  ]);
-  PlaceClass = placesLib.Place;
-  mapsLoaded = true;
+function loadMapsAPI() {
+  return new Promise((resolve, reject) => {
+    if (mapsLoaded && window.google) { resolve(); return; }
+    const existing = document.getElementById('gmaps-script');
+    if (existing) existing.remove();
+    window.__onMapsLoaded = () => { mapsLoaded = true; resolve(); };
+    const script = document.createElement('script');
+    script.id = 'gmaps-script';
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=__onMapsLoaded`;
+    script.onerror = () => reject(new Error('Maps API読込失敗'));
+    document.head.appendChild(script);
+  });
 }
 function useGPS() {
   if (!navigator.geolocation) { showStatus('⚠️ 位置情報に対応していません', 'error'); return; }
@@ -345,36 +310,30 @@ async function doSearch() {
   document.getElementById('grid').innerHTML = '';
   document.getElementById('sectionTitle').style.display = 'none';
   document.getElementById('loading').classList.add('active');
+  document.getElementById('loadingText').textContent = '周辺の場所を検索中...';
   document.getElementById('btnSearch').disabled = true;
   showStatus('', '');
   try {
     await loadMapsAPI();
+    const service = new google.maps.places.PlacesService(document.createElement('div'));
     const keyword = document.getElementById('keywordInput').value.trim();
-    let places;
-    if (keyword) {
-      const res = await PlaceClass.searchByText({
-        textQuery: keyword,
-        fields: ['displayName', 'location', 'photos', 'rating', 'userRatingCount', 'id'],
-        locationBias: { center: { lat: userLat, lng: userLng }, radius: currentRadius }
-      });
-      places = res.places;
-    } else {
-      const res = await PlaceClass.searchNearby({
-        fields: ['displayName', 'location', 'photos', 'rating', 'userRatingCount', 'id'],
-        locationRestriction: { center: { lat: userLat, lng: userLng }, radius: currentRadius }
-      });
-      places = res.places;
-    }
-    document.getElementById('loading').classList.remove('active');
-    document.getElementById('btnSearch').disabled = false;
-    if (!places || places.length === 0) { showStatus('📷 条件に合う場所がありません', 'info'); return; }
-    let filtered = places.filter(p => p.photos && p.photos.length > 0);
-    if (minRating > 0) filtered = filtered.filter(p => p.rating && p.rating >= minRating);
-    filtered.forEach(p => { p._dist = getDistance(userLat, userLng, p.location.lat(), p.location.lng()); });
-    const sorted = filtered.sort((a, b) => a._dist - b._dist).slice(0, 10);
-    if (sorted.length === 0) { showStatus('📷 条件に合う場所がありません', 'info'); return; }
-    showStatus(`✓ ${sorted.length}件見つかりました`, 'ok');
-    renderCards(sorted);
+    const request = { location: new google.maps.LatLng(userLat, userLng), radius: currentRadius };
+    if (keyword) request.keyword = keyword;
+    service.nearbySearch(request, (results, status) => {
+      document.getElementById('loading').classList.remove('active');
+      document.getElementById('btnSearch').disabled = false;
+      if (status !== google.maps.places.PlacesServiceStatus.OK || !results) {
+        showStatus('⚠️ 場所が見つかりません (' + status + ')', 'error'); return;
+      }
+      let filtered = results.filter(p => p.photos && p.photos.length > 0);
+      if (minRating > 0) filtered = filtered.filter(p => p.rating && p.rating >= minRating);
+      const sorted = filtered.map(p => ({
+        ...p, dist: getDistance(userLat, userLng, p.geometry.location.lat(), p.geometry.location.lng())
+      })).sort((a, b) => a.dist - b.dist).slice(0, 10);
+      if (sorted.length === 0) { showStatus('📷 条件に合う場所がありません', 'info'); return; }
+      showStatus(`✓ ${sorted.length}件見つかりました`, 'ok');
+      renderCards(sorted);
+    });
   } catch(e) {
     document.getElementById('loading').classList.remove('active');
     document.getElementById('btnSearch').disabled = false;
@@ -393,12 +352,12 @@ function renderCards(places) {
   places.forEach(place => {
     const card = document.createElement('div');
     card.className = 'card';
-    const distText = place._dist < 1000 ? Math.round(place._dist)+'m' : (place._dist/1000).toFixed(1)+'km';
-    const photoUrl = place.photos[0].getURI({ maxWidth: 400, maxHeight: 300 });
+    const distText = place.dist < 1000 ? Math.round(place.dist)+'m' : (place.dist/1000).toFixed(1)+'km';
+    const photoUrl = place.photos[0].getUrl({ maxWidth: 400, maxHeight: 300 });
     card.innerHTML = `
       <img class="card-img" src="${photoUrl}" alt="" loading="lazy">
       <div class="card-body">
-        <div class="card-name">${place.displayName}</div>
+        <div class="card-name">${place.name}</div>
         <div class="card-dist">📍 ${distText}</div>
         ${place.rating ? `<div class="card-rating">★ ${place.rating.toFixed(1)}</div>` : ''}
         <div class="card-hint">→ タップで詳細</div>
@@ -408,124 +367,90 @@ function renderCards(places) {
     grid.appendChild(card);
   });
 }
-
 function switchTab(name, btn) {
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   btn.classList.add('active');
 }
-
 function openModal(place, distText) {
-  const lat = place.location.lat();
-  const lng = place.location.lng();
-  currentMapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${place.id}`;
-
-  document.getElementById('modalName').textContent = place.displayName;
+  const lat = place.geometry.location.lat();
+  const lng = place.geometry.location.lng();
+  currentMapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${place.place_id}`;
+  document.getElementById('modalName').textContent = place.name;
   document.getElementById('modalDist').textContent = '📍 ' + distText;
   document.getElementById('modalRating').textContent = place.rating ? '★ ' + place.rating.toFixed(1) : '';
-  document.getElementById('modalCount').textContent = place.userRatingCount ? `(${place.userRatingCount}件)` : '';
+  document.getElementById('modalCount').textContent = place.user_ratings_total ? `(${place.user_ratings_total}件)` : '';
   document.getElementById('modalMapBtn').onclick = () => window.open(currentMapsUrl, '_blank');
-
   document.getElementById('photoGrid').innerHTML = '<div class="mini-spinner"></div>';
   document.getElementById('reviewsList').innerHTML = '<div class="mini-spinner"></div>';
   document.getElementById('infoWrap').innerHTML = '<div class="mini-spinner"></div>';
-
-  place.fetchFields({
-    fields: ['photos', 'reviews', 'formattedAddress', 'nationalPhoneNumber', 'regularOpeningHours', 'websiteURI', 'priceLevel']
-  }).then(() => {
-    renderPhotos(place.photos || []);
-    renderReviews(place.reviews || []);
-    renderInfo(place);
-  }).catch(() => {
-    document.getElementById('photoGrid').innerHTML = '<div class="no-content">写真を取得できませんでした</div>';
-    document.getElementById('reviewsList').innerHTML = '<div class="no-content">取得できませんでした</div>';
-    document.getElementById('infoWrap').innerHTML = '<div class="no-content">取得できませんでした</div>';
+  const service = new google.maps.places.PlacesService(document.createElement('div'));
+  service.getDetails({
+    placeId: place.place_id,
+    fields: ['photos', 'reviews', 'formatted_address', 'formatted_phone_number', 'opening_hours', 'website', 'price_level']
+  }, (detail, status) => {
+    if (status === google.maps.places.PlacesServiceStatus.OK && detail) {
+      renderPhotos(detail.photos || place.photos || []);
+      renderReviews(detail.reviews || []);
+      renderInfo(detail);
+    } else {
+      document.getElementById('photoGrid').innerHTML = '<div class="no-content">写真を取得できませんでした</div>';
+      document.getElementById('reviewsList').innerHTML = '<div class="no-content">取得できませんでした</div>';
+      document.getElementById('infoWrap').innerHTML = '<div class="no-content">取得できませんでした</div>';
+    }
   });
-
-  // タブを写真にリセット
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-photos').classList.add('active');
   document.querySelectorAll('.tab-btn')[0].classList.add('active');
-
   document.getElementById('modalOverlay').classList.add('active');
   document.body.style.overflow = 'hidden';
 }
-
 function renderPhotos(photos) {
   const photoGrid = document.getElementById('photoGrid');
   photoGrid.innerHTML = '';
   if (!photos || photos.length === 0) {
-    photoGrid.innerHTML = '<div class="no-content">写真がありません</div>';
-    return;
+    photoGrid.innerHTML = '<div class="no-content">写真がありません</div>'; return;
   }
-  photos.slice(0, 10).forEach((p, i) => {
+  photos.slice(0, 10).forEach(p => {
     const img = document.createElement('img');
-    img.src = p.getURI({ maxWidth: 600, maxHeight: 400 });
+    img.src = p.getUrl({ maxWidth: 600, maxHeight: 400 });
     img.loading = 'lazy';
     photoGrid.appendChild(img);
   });
 }
-
 function renderReviews(reviews) {
-  if (!reviews || reviews.length === 0) {
-    document.getElementById('reviewsList').innerHTML = '<div class="no-content">口コミがありません</div>';
-    return;
+  if (reviews.length === 0) {
+    document.getElementById('reviewsList').innerHTML = '<div class="no-content">口コミがありません</div>'; return;
   }
   document.getElementById('reviewsList').innerHTML = reviews.slice(0, 5).map(r => `
     <div class="review">
-      <div class="review-author">👤 ${r.authorAttribution?.displayName || '匿名'}</div>
+      <div class="review-author">👤 ${r.author_name}</div>
       <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)} ${r.rating}.0</div>
-      <div class="review-text">${r.text?.text || '（テキストなし）'}</div>
-      <div class="review-time">${r.relativePublishTimeDescription || ''}</div>
+      <div class="review-text">${r.text || '（テキストなし）'}</div>
+      <div class="review-time">${r.relative_time_description}</div>
     </div>
   `).join('');
 }
-
-function renderInfo(place) {
-  const priceLevelMap = {
-    'PRICE_LEVEL_FREE': '無料', 'PRICE_LEVEL_INEXPENSIVE': '¥',
-    'PRICE_LEVEL_MODERATE': '¥¥', 'PRICE_LEVEL_EXPENSIVE': '¥¥¥', 'PRICE_LEVEL_VERY_EXPENSIVE': '¥¥¥¥'
-  };
+function renderInfo(detail) {
+  const priceMap = ['', '¥', '¥¥', '¥¥¥', '¥¥¥¥'];
   let html = '';
-  if (place.formattedAddress) html += `
-    <div class="info-row">
-      <div class="info-icon">📍</div>
-      <div><div class="info-label">住所</div><div class="info-value">${place.formattedAddress}</div></div>
-    </div>`;
-  if (place.nationalPhoneNumber) html += `
-    <div class="info-row">
-      <div class="info-icon">📞</div>
-      <div><div class="info-label">電話番号</div><div class="info-value"><a href="tel:${place.nationalPhoneNumber}">${place.nationalPhoneNumber}</a></div></div>
-    </div>`;
-  if (place.websiteURI) html += `
-    <div class="info-row">
-      <div class="info-icon">🌐</div>
-      <div><div class="info-label">ウェブサイト</div><div class="info-value"><a href="${place.websiteURI}" target="_blank">サイトを開く</a></div></div>
-    </div>`;
-  if (place.priceLevel && place.priceLevel !== 'PRICE_LEVEL_UNSPECIFIED') html += `
-    <div class="info-row">
-      <div class="info-icon">💴</div>
-      <div><div class="info-label">価格帯</div><div class="info-value">${priceLevelMap[place.priceLevel] || ''}</div></div>
-    </div>`;
-  if (place.regularOpeningHours?.weekdayDescriptions?.length) {
+  if (detail.formatted_address) html += `<div class="info-row"><div class="info-icon">📍</div><div><div class="info-label">住所</div><div class="info-value">${detail.formatted_address}</div></div></div>`;
+  if (detail.formatted_phone_number) html += `<div class="info-row"><div class="info-icon">📞</div><div><div class="info-label">電話番号</div><div class="info-value"><a href="tel:${detail.formatted_phone_number}">${detail.formatted_phone_number}</a></div></div></div>`;
+  if (detail.website) html += `<div class="info-row"><div class="info-icon">🌐</div><div><div class="info-label">ウェブサイト</div><div class="info-value"><a href="${detail.website}" target="_blank">サイトを開く</a></div></div></div>`;
+  if (detail.price_level) html += `<div class="info-row"><div class="info-icon">💴</div><div><div class="info-label">価格帯</div><div class="info-value">${priceMap[detail.price_level]}</div></div></div>`;
+  if (detail.opening_hours && detail.opening_hours.weekday_text) {
     const today = new Date().getDay();
-    const days = place.regularOpeningHours.weekdayDescriptions;
-    const hoursHtml = days.map((d, i) => {
+    const hoursHtml = detail.opening_hours.weekday_text.map((d, i) => {
       const isToday = i === (today === 0 ? 6 : today - 1);
       return `<div class="hours-item ${isToday ? 'hours-today' : ''}">${isToday ? '▶ ' : ''}${d}</div>`;
     }).join('');
-    html += `
-    <div class="info-row">
-      <div class="info-icon">🕐</div>
-      <div><div class="info-label">営業時間</div><div class="info-value">${hoursHtml}</div></div>
-    </div>`;
+    html += `<div class="info-row"><div class="info-icon">🕐</div><div><div class="info-label">営業時間</div><div class="info-value">${hoursHtml}</div></div></div>`;
   }
   if (!html) html = '<div class="no-content">情報がありません</div>';
   document.getElementById('infoWrap').innerHTML = html;
 }
-
 function closeModal() {
   document.getElementById('modalOverlay').classList.remove('active');
   document.body.style.overflow = '';
