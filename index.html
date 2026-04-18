@@ -373,31 +373,23 @@ function openModal(place, distText) {
   document.getElementById('modalCount').textContent = place.user_ratings_total ? `(${place.user_ratings_total}件)` : '';
   document.getElementById('modalMapBtn').onclick = () => window.open(currentMapsUrl, '_blank');
 
-  // 写真タブ
-  const photoGrid = document.getElementById('photoGrid');
-  photoGrid.innerHTML = '';
-  const photos = place.photos.slice(0, 6);
-  photos.forEach((p, i) => {
-    const img = document.createElement('img');
-    img.src = p.getUrl({ maxWidth: 600, maxHeight: 400 });
-    img.loading = 'lazy';
-    photoGrid.appendChild(img);
-  });
-
-  // 口コミ・基本情報タブはローディング表示
+  // 全タブローディング表示
+  document.getElementById('photoGrid').innerHTML = '<div class="mini-spinner"></div>';
   document.getElementById('reviewsList').innerHTML = '<div class="mini-spinner"></div>';
   document.getElementById('infoWrap').innerHTML = '<div class="mini-spinner"></div>';
 
-  // 詳細取得
+  // getDetailsで写真・口コミ・基本情報をまとめて取得（写真は最大10枚）
   const service = new google.maps.places.PlacesService(document.createElement('div'));
   service.getDetails({
     placeId: place.place_id,
-    fields: ['reviews', 'formatted_address', 'formatted_phone_number', 'opening_hours', 'website', 'price_level']
+    fields: ['photos', 'reviews', 'formatted_address', 'formatted_phone_number', 'opening_hours', 'website', 'price_level']
   }, (detail, status) => {
     if (status === google.maps.places.PlacesServiceStatus.OK && detail) {
+      renderPhotos(detail.photos || place.photos || []);
       renderReviews(detail.reviews || []);
       renderInfo(detail, place);
     } else {
+      document.getElementById('photoGrid').innerHTML = '<div class="no-content">写真を取得できませんでした</div>';
       document.getElementById('reviewsList').innerHTML = '<div class="no-content">取得できませんでした</div>';
       document.getElementById('infoWrap').innerHTML = '<div class="no-content">取得できませんでした</div>';
     }
@@ -411,6 +403,21 @@ function openModal(place, distText) {
 
   document.getElementById('modalOverlay').classList.add('active');
   document.body.style.overflow = 'hidden';
+}
+
+function renderPhotos(photos) {
+  const photoGrid = document.getElementById('photoGrid');
+  photoGrid.innerHTML = '';
+  if (!photos || photos.length === 0) {
+    photoGrid.innerHTML = '<div class="no-content">写真がありません</div>';
+    return;
+  }
+  photos.slice(0, 10).forEach((p, i) => {
+    const img = document.createElement('img');
+    img.src = p.getUrl({ maxWidth: 600, maxHeight: 400 });
+    img.loading = 'lazy';
+    photoGrid.appendChild(img);
+  });
 }
 
 function renderReviews(reviews) {
