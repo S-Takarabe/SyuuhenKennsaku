@@ -279,11 +279,13 @@
 
   <div class="label">検索範囲</div>
   <div class="radius-row">
+    <div class="chip" onclick="setRadius(50, this)">50m</div>
+    <div class="chip" onclick="setRadius(200, this)">200m</div>
     <div class="chip active" onclick="setRadius(500, this)">500m</div>
     <div class="chip" onclick="setRadius(1000, this)">1km</div>
-    <div class="chip" onclick="setRadius(2000, this)">2km</div>
-    <div class="chip" onclick="setRadius(5000, this)">5km</div>
   </div>
+  <div class="label" style="margin-top:14px">🏷️ ジャンル（任意）</div>
+  <input class="input" id="keywordInput" placeholder="例: カフェ、ラーメン、公園、神社" autocomplete="off">
 
   <div style="margin-top:16px">
     <button class="btn" id="btnSearch" onclick="doSearch()" style="width:100%;padding:14px">🔎 周辺の写真を探す</button>
@@ -418,10 +420,12 @@ async function doSearch() {
   try {
     await loadMapsAPI();
     const service = new google.maps.places.PlacesService(document.createElement('div'));
+    const keyword = document.getElementById('keywordInput').value.trim();
     const request = {
       location: new google.maps.LatLng(userLat, userLng),
       radius: currentRadius
     };
+    if (keyword) request.keyword = keyword;
     service.nearbySearch(request, (results, status) => {
       document.getElementById('loading').classList.remove('active');
       document.getElementById('btnSearch').disabled = false;
