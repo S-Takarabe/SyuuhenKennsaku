@@ -274,18 +274,29 @@ function getApiKey() {
   if (!apiKey) { showStatus('⚠️ APIキーを入力してください', 'error'); return false; }
   return true;
 }
-function loadMapsAPI() {
-  return new Promise((resolve, reject) => {
-    if (mapsLoaded && window.google) { resolve(); return; }
-    const existing = document.getElementById('gmaps-script');
-    if (existing) existing.remove();
-    window.__onMapsLoaded = () => { mapsLoaded = true; resolve(); };
-    const script = document.createElement('script');
-    script.id = 'gmaps-script';
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=__onMapsLoaded`;
-    script.onerror = () => reject(new Error('Maps API読込失敗'));
-    document.head.appendChild(script);
-  });
+let PlaceClass = null;
+async function loadMapsAPI() {
+  if (mapsLoaded && PlaceClass) return;
+  if (!window.google?.maps?.importLibrary) {
+    await new Promise((resolve, reject) => {
+      const existing = document.getElementById('gmaps-script');
+      if (existing) existing.remove();
+      mapsLoaded = false; PlaceClass = null;
+      const script = document.createElement('script');
+      script.id = 'gmaps-script';
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&v=weekly&loading=async`;
+      script.async = true;
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('Maps API読込失敗'));
+      document.head.appendChild(script);
+    });
+  }
+  const [placesLib] = await Promise.all([
+    google.maps.importLibrary('places'),
+    google.maps.importLibrary('geocoding')
+  ]);
+  PlaceClass = placesLib.Place;
+  mapsLoaded = true;
 }
 function useGPS() {
   if (!navigator.geolocation) { showStatus('⚠️ 位置情報に対応していません', 'error'); return; }
@@ -338,25 +349,32 @@ async function doSearch() {
   showStatus('', '');
   try {
     await loadMapsAPI();
-    const service = new google.maps.places.PlacesService(document.createElement('div'));
     const keyword = document.getElementById('keywordInput').value.trim();
-    const request = { location: new google.maps.LatLng(userLat, userLng), radius: currentRadius };
-    if (keyword) request.keyword = keyword;
-    service.nearbySearch(request, (results, status) => {
-      document.getElementById('loading').classList.remove('active');
-      document.getElementById('btnSearch').disabled = false;
-      if (status !== google.maps.places.PlacesServiceStatus.OK || !results) {
-        showStatus('⚠️ 場所が見つかりません (' + status + ')', 'error'); return;
-      }
-      let filtered = results.filter(p => p.photos && p.photos.length > 0);
-      if (minRating > 0) filtered = filtered.filter(p => p.rating && p.rating >= minRating);
-      const sorted = filtered.map(p => ({
-        ...p, dist: getDistance(userLat, userLng, p.geometry.location.lat(), p.geometry.location.lng())
-      })).sort((a, b) => a.dist - b.dist).slice(0, 10);
-      if (sorted.length === 0) { showStatus('📷 条件に合う場所がありません', 'info'); return; }
-      showStatus(`✓ ${sorted.length}件見つかりました`, 'ok');
-      renderCards(sorted);
-    });
+    let places;
+    if (keyword) {
+      const res = await PlaceClass.searchByText({
+        textQuery: keyword,
+        fields: ['displayName', 'location', 'photos', 'rating', 'userRatingCount', 'id'],
+        locationBias: { center: { lat: userLat, lng: userLng }, radius: currentRadius }
+      });
+      places = res.places;
+    } else {
+      const res = await PlaceClass.searchNearby({
+        fields: ['displayName', 'location', 'photos', 'rating', 'userRatingCount', 'id'],
+        locationRestriction: { center: { lat: userLat, lng: userLng }, radius: currentRadius }
+      });
+      places = res.places;
+    }
+    document.getElementById('loading').classList.remove('active');
+    document.getElementById('btnSearch').disabled = false;
+    if (!places || places.length === 0) { showStatus('📷 条件に合う場所がありません', 'info'); return; }
+    let filtered = places.filter(p => p.photos && p.photos.length > 0);
+    if (minRating > 0) filtered = filtered.filter(p => p.rating && p.rating >= minRating);
+    filtered.forEach(p => { p._dist = getDistance(userLat, userLng, p.location.lat(), p.location.lng()); });
+    const sorted = filtered.sort((a, b) => a._dist - b._dist).slice(0, 10);
+    if (sorted.length === 0) { showStatus('📷 条件に合う場所がありません', 'info'); return; }
+    showStatus(`✓ ${sorted.length}件見つかりました`, 'ok');
+    renderCards(sorted);
   } catch(e) {
     document.getElementById('loading').classList.remove('active');
     document.getElementById('btnSearch').disabled = false;
@@ -375,12 +393,12 @@ function renderCards(places) {
   places.forEach(place => {
     const card = document.createElement('div');
     card.className = 'card';
-    const distText = place.dist < 1000 ? Math.round(place.dist)+'m' : (place.dist/1000).toFixed(1)+'km';
-    const photoUrl = place.photos[0].getUrl({ maxWidth: 400, maxHeight: 300 });
+    const distText = place._dist < 1000 ? Math.round(place._dist)+'m' : (place._dist/1000).toFixed(1)+'km';
+    const photoUrl = place.photos[0].getURI({ maxWidth: 400, maxHeight: 300 });
     card.innerHTML = `
       <img class="card-img" src="${photoUrl}" alt="" loading="lazy">
       <div class="card-body">
-        <div class="card-name">${place.name}</div>
+        <div class="card-name">${place.displayName}</div>
         <div class="card-dist">📍 ${distText}</div>
         ${place.rating ? `<div class="card-rating">★ ${place.rating.toFixed(1)}</div>` : ''}
         <div class="card-hint">→ タップで詳細</div>
@@ -399,36 +417,30 @@ function switchTab(name, btn) {
 }
 
 function openModal(place, distText) {
-  const lat = place.geometry.location.lat();
-  const lng = place.geometry.location.lng();
-  currentMapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${place.place_id}`;
+  const lat = place.location.lat();
+  const lng = place.location.lng();
+  currentMapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${place.id}`;
 
-  document.getElementById('modalName').textContent = place.name;
+  document.getElementById('modalName').textContent = place.displayName;
   document.getElementById('modalDist').textContent = '📍 ' + distText;
   document.getElementById('modalRating').textContent = place.rating ? '★ ' + place.rating.toFixed(1) : '';
-  document.getElementById('modalCount').textContent = place.user_ratings_total ? `(${place.user_ratings_total}件)` : '';
+  document.getElementById('modalCount').textContent = place.userRatingCount ? `(${place.userRatingCount}件)` : '';
   document.getElementById('modalMapBtn').onclick = () => window.open(currentMapsUrl, '_blank');
 
-  // 全タブローディング表示
   document.getElementById('photoGrid').innerHTML = '<div class="mini-spinner"></div>';
   document.getElementById('reviewsList').innerHTML = '<div class="mini-spinner"></div>';
   document.getElementById('infoWrap').innerHTML = '<div class="mini-spinner"></div>';
 
-  // getDetailsで写真・口コミ・基本情報をまとめて取得（写真は最大10枚）
-  const service = new google.maps.places.PlacesService(document.createElement('div'));
-  service.getDetails({
-    placeId: place.place_id,
-    fields: ['photos', 'reviews', 'formatted_address', 'formatted_phone_number', 'opening_hours', 'website', 'price_level']
-  }, (detail, status) => {
-    if (status === google.maps.places.PlacesServiceStatus.OK && detail) {
-      renderPhotos(detail.photos || place.photos || []);
-      renderReviews(detail.reviews || []);
-      renderInfo(detail, place);
-    } else {
-      document.getElementById('photoGrid').innerHTML = '<div class="no-content">写真を取得できませんでした</div>';
-      document.getElementById('reviewsList').innerHTML = '<div class="no-content">取得できませんでした</div>';
-      document.getElementById('infoWrap').innerHTML = '<div class="no-content">取得できませんでした</div>';
-    }
+  place.fetchFields({
+    fields: ['photos', 'reviews', 'formattedAddress', 'nationalPhoneNumber', 'regularOpeningHours', 'websiteURI', 'priceLevel']
+  }).then(() => {
+    renderPhotos(place.photos || []);
+    renderReviews(place.reviews || []);
+    renderInfo(place);
+  }).catch(() => {
+    document.getElementById('photoGrid').innerHTML = '<div class="no-content">写真を取得できませんでした</div>';
+    document.getElementById('reviewsList').innerHTML = '<div class="no-content">取得できませんでした</div>';
+    document.getElementById('infoWrap').innerHTML = '<div class="no-content">取得できませんでした</div>';
   });
 
   // タブを写真にリセット
@@ -450,53 +462,56 @@ function renderPhotos(photos) {
   }
   photos.slice(0, 10).forEach((p, i) => {
     const img = document.createElement('img');
-    img.src = p.getUrl({ maxWidth: 600, maxHeight: 400 });
+    img.src = p.getURI({ maxWidth: 600, maxHeight: 400 });
     img.loading = 'lazy';
     photoGrid.appendChild(img);
   });
 }
 
 function renderReviews(reviews) {
-  if (reviews.length === 0) {
+  if (!reviews || reviews.length === 0) {
     document.getElementById('reviewsList').innerHTML = '<div class="no-content">口コミがありません</div>';
     return;
   }
   document.getElementById('reviewsList').innerHTML = reviews.slice(0, 5).map(r => `
     <div class="review">
-      <div class="review-author">👤 ${r.author_name}</div>
+      <div class="review-author">👤 ${r.authorAttribution?.displayName || '匿名'}</div>
       <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)} ${r.rating}.0</div>
-      <div class="review-text">${r.text || '（テキストなし）'}</div>
-      <div class="review-time">${r.relative_time_description}</div>
+      <div class="review-text">${r.text?.text || '（テキストなし）'}</div>
+      <div class="review-time">${r.relativePublishTimeDescription || ''}</div>
     </div>
   `).join('');
 }
 
-function renderInfo(detail, place) {
-  const priceMap = ['', '¥', '¥¥', '¥¥¥', '¥¥¥¥'];
+function renderInfo(place) {
+  const priceLevelMap = {
+    'PRICE_LEVEL_FREE': '無料', 'PRICE_LEVEL_INEXPENSIVE': '¥',
+    'PRICE_LEVEL_MODERATE': '¥¥', 'PRICE_LEVEL_EXPENSIVE': '¥¥¥', 'PRICE_LEVEL_VERY_EXPENSIVE': '¥¥¥¥'
+  };
   let html = '';
-  if (detail.formatted_address) html += `
+  if (place.formattedAddress) html += `
     <div class="info-row">
       <div class="info-icon">📍</div>
-      <div><div class="info-label">住所</div><div class="info-value">${detail.formatted_address}</div></div>
+      <div><div class="info-label">住所</div><div class="info-value">${place.formattedAddress}</div></div>
     </div>`;
-  if (detail.formatted_phone_number) html += `
+  if (place.nationalPhoneNumber) html += `
     <div class="info-row">
       <div class="info-icon">📞</div>
-      <div><div class="info-label">電話番号</div><div class="info-value"><a href="tel:${detail.formatted_phone_number}">${detail.formatted_phone_number}</a></div></div>
+      <div><div class="info-label">電話番号</div><div class="info-value"><a href="tel:${place.nationalPhoneNumber}">${place.nationalPhoneNumber}</a></div></div>
     </div>`;
-  if (detail.website) html += `
+  if (place.websiteURI) html += `
     <div class="info-row">
       <div class="info-icon">🌐</div>
-      <div><div class="info-label">ウェブサイト</div><div class="info-value"><a href="${detail.website}" target="_blank">サイトを開く</a></div></div>
+      <div><div class="info-label">ウェブサイト</div><div class="info-value"><a href="${place.websiteURI}" target="_blank">サイトを開く</a></div></div>
     </div>`;
-  if (detail.price_level) html += `
+  if (place.priceLevel && place.priceLevel !== 'PRICE_LEVEL_UNSPECIFIED') html += `
     <div class="info-row">
       <div class="info-icon">💴</div>
-      <div><div class="info-label">価格帯</div><div class="info-value">${priceMap[detail.price_level] || ''}</div></div>
+      <div><div class="info-label">価格帯</div><div class="info-value">${priceLevelMap[place.priceLevel] || ''}</div></div>
     </div>`;
-  if (detail.opening_hours && detail.opening_hours.weekday_text) {
+  if (place.regularOpeningHours?.weekdayDescriptions?.length) {
     const today = new Date().getDay();
-    const days = detail.opening_hours.weekday_text;
+    const days = place.regularOpeningHours.weekdayDescriptions;
     const hoursHtml = days.map((d, i) => {
       const isToday = i === (today === 0 ? 6 : today - 1);
       return `<div class="hours-item ${isToday ? 'hours-today' : ''}">${isToday ? '▶ ' : ''}${d}</div>`;
