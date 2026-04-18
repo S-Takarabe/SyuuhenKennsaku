@@ -7,233 +7,84 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
-    --bg: #f5f5f7;
-    --surface: #ffffff;
-    --border: #d0d0d5;
-    --accent: #0066cc;
-    --accent-dark: #004999;
-    --accent2: #e63900;
-    --text: #111111;
-    --text-sub: #444444;
-    --text-dim: #666666;
+    --bg: #f5f5f7; --surface: #ffffff; --border: #d0d0d5;
+    --accent: #0066cc; --accent-dark: #004999; --accent2: #e63900;
+    --text: #111111; --text-sub: #444444; --text-dim: #666666;
   }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
-    min-height: 100vh;
-    font-size: 15px;
-  }
-  header {
-    padding: 18px 16px 14px;
-    border-bottom: 2px solid var(--border);
-    background: var(--surface);
-    position: sticky; top: 0; z-index: 100;
-  }
-  .header-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--accent);
-  }
-  .header-sub {
-    font-size: 13px;
-    color: var(--text-sub);
-    margin-top: 3px;
-  }
-  .panel {
-    margin: 14px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  }
-  .label {
-    font-size: 13px;
-    color: var(--text);
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-  .input {
-    width: 100%;
-    background: #fafafa;
-    border: 2px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 14px;
-    color: var(--text);
-    font-size: 15px;
-    outline: none;
-  }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif; min-height: 100vh; font-size: 15px; }
+  header { padding: 18px 16px 14px; border-bottom: 2px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 100; }
+  .header-title { font-size: 20px; font-weight: 700; color: var(--accent); }
+  .header-sub { font-size: 13px; color: var(--text-sub); margin-top: 3px; }
+  .panel { margin: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .label { font-size: 13px; color: var(--text); font-weight: 700; margin-bottom: 8px; }
+  .input { width: 100%; background: #fafafa; border: 2px solid var(--border); border-radius: 8px; padding: 12px 14px; color: var(--text); font-size: 15px; outline: none; }
   .input:focus { border-color: var(--accent); background: #fff; }
   .input::placeholder { color: #999; }
   .row { display: flex; gap: 8px; margin-bottom: 14px; }
   .row:last-child { margin-bottom: 0; }
-  .btn {
-    background: var(--accent);
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    padding: 12px 18px;
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    white-space: nowrap;
-  }
+  .btn { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 12px 18px; font-weight: 700; font-size: 14px; cursor: pointer; white-space: nowrap; }
   .btn:active { background: var(--accent-dark); }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-ghost {
-    background: #fff;
-    color: var(--accent);
-    border: 2px solid var(--accent);
-  }
+  .btn-ghost { background: #fff; color: var(--accent); border: 2px solid var(--accent); }
   .btn-ghost:active { background: #e8f0fa; }
-  .section-divider {
-    height: 1px;
-    background: var(--border);
-    margin: 16px 0;
-    position: relative;
-  }
-  .section-divider::after {
-    content: 'OR';
-    position: absolute;
-    top: -9px; left: 50%;
-    transform: translateX(-50%);
-    background: var(--surface);
-    padding: 0 12px;
-    font-size: 12px;
-    color: var(--text-dim);
-    font-weight: 700;
-  }
-  .status {
-    margin: 0 14px 14px;
-    padding: 12px 14px;
-    border-radius: 8px;
-    font-size: 13px;
-    display: none;
-    line-height: 1.5;
-    font-weight: 500;
-  }
+  .section-divider { height: 1px; background: var(--border); margin: 16px 0; position: relative; }
+  .section-divider::after { content: 'OR'; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); background: var(--surface); padding: 0 12px; font-size: 12px; color: var(--text-dim); font-weight: 700; }
+  .status { margin: 0 14px 14px; padding: 12px 14px; border-radius: 8px; font-size: 13px; display: none; line-height: 1.5; font-weight: 500; }
   .status.info { display: block; background: #e8f0fa; border: 1px solid #a8c8e8; color: #004999; }
   .status.error { display: block; background: #ffe8e8; border: 1px solid #e88080; color: #a00000; }
   .status.ok { display: block; background: #e8f8e8; border: 1px solid #80c080; color: #006600; }
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    padding: 0 14px 24px;
-  }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-    animation: fadeIn 0.4s ease both;
-  }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 14px 24px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.06); animation: fadeIn 0.4s ease both; }
   .card:active { transform: scale(0.97); }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  .card:nth-child(1){animation-delay:.05s}
-  .card:nth-child(2){animation-delay:.10s}
-  .card:nth-child(3){animation-delay:.15s}
-  .card:nth-child(4){animation-delay:.20s}
-  .card:nth-child(5){animation-delay:.25s}
-  .card:nth-child(6){animation-delay:.30s}
-  .card:nth-child(7){animation-delay:.35s}
-  .card:nth-child(8){animation-delay:.40s}
-  .card:nth-child(9){animation-delay:.45s}
-  .card:nth-child(10){animation-delay:.50s}
-  .card-img {
-    width: 100%;
-    aspect-ratio: 4/3;
-    object-fit: cover;
-    display: block;
-    background: var(--border);
-  }
+  .card:nth-child(1){animation-delay:.05s} .card:nth-child(2){animation-delay:.10s} .card:nth-child(3){animation-delay:.15s} .card:nth-child(4){animation-delay:.20s} .card:nth-child(5){animation-delay:.25s} .card:nth-child(6){animation-delay:.30s} .card:nth-child(7){animation-delay:.35s} .card:nth-child(8){animation-delay:.40s} .card:nth-child(9){animation-delay:.45s} .card:nth-child(10){animation-delay:.50s}
+  .card-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; background: var(--border); }
   .card-body { padding: 10px 12px; }
-  .card-name {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 5px;
-    line-height: 1.3;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .card-dist {
-    font-size: 12px;
-    color: var(--accent);
-    font-weight: 700;
-  }
-  .card-rating { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
-  .card-hint {
-    font-size: 11px;
-    color: var(--accent2);
-    margin-top: 6px;
-    font-weight: 700;
-  }
+  .card-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 5px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-dist { font-size: 12px; color: var(--accent); font-weight: 700; }
+  .card-rating { font-size: 12px; color: #e6a000; margin-top: 4px; font-weight: 700; }
+  .card-hint { font-size: 11px; color: var(--accent2); margin-top: 6px; font-weight: 700; }
   .loading { display: none; text-align: center; padding: 40px 16px; }
   .loading.active { display: block; }
-  .spinner {
-    width: 40px; height: 40px;
-    border: 3px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 12px;
-  }
+  .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-text { font-size: 14px; color: var(--text-sub); font-weight: 500; }
-  .chip {
-    background: #fafafa;
-    border: 2px solid var(--border);
-    color: var(--text-sub);
-    border-radius: 20px;
-    padding: 8px 14px;
-    font-size: 13px;
-    cursor: pointer;
-    font-weight: 700;
-  }
-  .chip.active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #ffffff;
-  }
+  .chip { background: #fafafa; border: 2px solid var(--border); color: var(--text-sub); border-radius: 20px; padding: 8px 14px; font-size: 13px; cursor: pointer; font-weight: 700; }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
   .radius-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .section-title {
-    padding: 4px 16px 10px;
-    font-size: 13px;
-    color: var(--text-sub);
-    font-weight: 700;
-  }
+  .section-title { padding: 4px 16px 10px; font-size: 13px; color: var(--text-sub); font-weight: 700; }
   details { margin-top: 10px; }
-  summary {
-    cursor: pointer;
-    color: var(--accent);
-    font-size: 13px;
-    font-weight: 700;
-    padding: 6px 0;
-  }
-  .help {
-    margin-top: 8px;
-    padding: 12px;
-    background: #fafafa;
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 13px;
-    line-height: 1.7;
-    border: 1px solid var(--border);
-  }
-  .help code {
-    background: #fff;
-    padding: 2px 8px;
-    border-radius: 4px;
-    color: var(--accent-dark);
-    font-size: 12px;
-    border: 1px solid var(--border);
-  }
+  summary { cursor: pointer; color: var(--accent); font-size: 13px; font-weight: 700; padding: 6px 0; }
+  .help { margin-top: 8px; padding: 12px; background: #fafafa; border-radius: 8px; color: var(--text); font-size: 13px; line-height: 1.7; border: 1px solid var(--border); }
+  .help code { background: #fff; padding: 2px 8px; border-radius: 4px; color: var(--accent-dark); font-size: 12px; border: 1px solid var(--border); }
+
+  /* 星フィルター */
+  .star-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .star-chip { background: #fafafa; border: 2px solid var(--border); color: var(--text-sub); border-radius: 20px; padding: 8px 14px; font-size: 13px; cursor: pointer; font-weight: 700; }
+  .star-chip.active { background: #e6a000; border-color: #e6a000; color: #fff; }
+
+  /* 詳細ポップアップ */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; }
+  .modal-overlay.active { display: block; }
+  .modal { position: absolute; bottom: 0; left: 0; right: 0; background: var(--surface); border-radius: 20px 20px 0 0; max-height: 85vh; overflow-y: auto; padding-bottom: 20px; }
+  .modal-img { width: 100%; height: 220px; object-fit: cover; }
+  .modal-body { padding: 16px; }
+  .modal-name { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .modal-meta { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .modal-dist { font-size: 14px; color: var(--accent); font-weight: 700; }
+  .modal-rating { font-size: 14px; color: #e6a000; font-weight: 700; }
+  .modal-count { font-size: 13px; color: var(--text-dim); }
+  .modal-address { font-size: 13px; color: var(--text-sub); margin-bottom: 16px; line-height: 1.5; }
+  .reviews-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 10px; border-top: 1px solid var(--border); padding-top: 14px; }
+  .review { background: #fafafa; border-radius: 10px; padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); }
+  .review-author { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .review-rating { font-size: 12px; color: #e6a000; margin-bottom: 6px; }
+  .review-text { font-size: 13px; color: var(--text-sub); line-height: 1.6; }
+  .review-time { font-size: 11px; color: var(--text-dim); margin-top: 6px; }
+  .modal-btn { display: block; width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 12px; padding: 16px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 16px; text-align: center; }
+  .modal-btn:active { background: var(--accent-dark); }
+  .modal-close { position: absolute; top: 14px; right: 14px; background: rgba(0,0,0,0.4); color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
+  .no-reviews { font-size: 13px; color: var(--text-dim); text-align: center; padding: 16px 0; }
 </style>
 </head>
 <body>
@@ -284,6 +135,16 @@
     <div class="chip active" onclick="setRadius(500, this)">500m</div>
     <div class="chip" onclick="setRadius(1000, this)">1km</div>
   </div>
+
+  <div class="label" style="margin-top:14px">⭐ 最低評価</div>
+  <div class="star-row">
+    <div class="star-chip active" onclick="setMinRating(0, this)">すべて</div>
+    <div class="star-chip" onclick="setMinRating(3, this)">3.0以上</div>
+    <div class="star-chip" onclick="setMinRating(3.5, this)">3.5以上</div>
+    <div class="star-chip" onclick="setMinRating(4, this)">4.0以上</div>
+    <div class="star-chip" onclick="setMinRating(4.5, this)">4.5以上</div>
+  </div>
+
   <div class="label" style="margin-top:14px">🏷️ ジャンル（任意）</div>
   <input class="input" id="keywordInput" placeholder="例: カフェ、ラーメン、公園、神社" autocomplete="off">
 
@@ -293,17 +154,36 @@
 </div>
 
 <div class="status" id="statusBar"></div>
-
 <div class="loading" id="loading">
   <div class="spinner"></div>
   <div class="loading-text" id="loadingText">検索中...</div>
 </div>
-
-<div class="section-title" id="sectionTitle" style="display:none">距離順 · タップでマップを開きます</div>
+<div class="section-title" id="sectionTitle" style="display:none">距離順 · タップで詳細を表示</div>
 <div class="grid" id="grid"></div>
+
+<!-- 詳細ポップアップ -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    <img class="modal-img" id="modalImg" src="" alt="">
+    <div class="modal-body">
+      <div class="modal-name" id="modalName"></div>
+      <div class="modal-meta">
+        <span class="modal-dist" id="modalDist"></span>
+        <span class="modal-rating" id="modalRating"></span>
+        <span class="modal-count" id="modalCount"></span>
+      </div>
+      <div class="modal-address" id="modalAddress"></div>
+      <div class="reviews-title" id="reviewsTitle" style="display:none">💬 口コミ</div>
+      <div id="reviewsList"></div>
+      <button class="modal-btn" id="modalMapBtn">🗺️ Googleマップで開く</button>
+    </div>
+  </div>
+</div>
 
 <script>
 let currentRadius = 500;
+let minRating = 0;
 let userLat = null;
 let userLng = null;
 let apiKey = '';
@@ -315,6 +195,12 @@ function setRadius(r, el) {
   el.classList.add('active');
 }
 
+function setMinRating(r, el) {
+  minRating = r;
+  document.querySelectorAll('.star-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
 function showStatus(msg, type) {
   const el = document.getElementById('statusBar');
   el.innerHTML = msg;
@@ -323,10 +209,7 @@ function showStatus(msg, type) {
 
 function getApiKey() {
   apiKey = document.getElementById('apiKey').value.trim();
-  if (!apiKey) {
-    showStatus('⚠️ APIキーを入力してください', 'error');
-    return false;
-  }
+  if (!apiKey) { showStatus('⚠️ APIキーを入力してください', 'error'); return false; }
   return true;
 }
 
@@ -345,10 +228,7 @@ function loadMapsAPI() {
 }
 
 function useGPS() {
-  if (!navigator.geolocation) {
-    showStatus('⚠️ 位置情報に対応していません', 'error');
-    return;
-  }
+  if (!navigator.geolocation) { showStatus('⚠️ 位置情報に対応していません', 'error'); return; }
   showStatus('📡 位置情報を取得中...', 'info');
   navigator.geolocation.getCurrentPosition(
     pos => {
@@ -372,10 +252,7 @@ function useGPS() {
 async function searchByName() {
   if (!getApiKey()) return;
   const query = document.getElementById('placeQuery').value.trim();
-  if (!query) {
-    showStatus('⚠️ 地名または住所を入力してください', 'error');
-    return;
-  }
+  if (!query) { showStatus('⚠️ 地名または住所を入力してください', 'error'); return; }
   showStatus('🔍 場所を検索中...', 'info');
   try {
     await loadMapsAPI();
@@ -383,8 +260,7 @@ async function searchByName() {
     geocoder.geocode({ address: query, region: 'jp' }, (results, status) => {
       if (status === 'OK' && results[0]) {
         const loc = results[0].geometry.location;
-        userLat = loc.lat();
-        userLng = loc.lng();
+        userLat = loc.lat(); userLng = loc.lng();
         document.getElementById('latInput').value = userLat.toFixed(6);
         document.getElementById('lngInput').value = userLng.toFixed(6);
         showStatus(`✓ ${results[0].formatted_address}`, 'ok');
@@ -392,23 +268,15 @@ async function searchByName() {
         showStatus('⚠️ 場所が見つかりません: ' + status, 'error');
       }
     });
-  } catch(e) {
-    showStatus('⚠️ APIエラー: ' + e.message, 'error');
-  }
+  } catch(e) { showStatus('⚠️ APIエラー: ' + e.message, 'error'); }
 }
 
 async function doSearch() {
   if (!getApiKey()) return;
   const latStr = document.getElementById('latInput').value.trim();
   const lngStr = document.getElementById('lngInput').value.trim();
-  if (latStr && lngStr) {
-    userLat = parseFloat(latStr);
-    userLng = parseFloat(lngStr);
-  }
-  if (userLat === null || userLng === null || isNaN(userLat) || isNaN(userLng)) {
-    showStatus('⚠️ 現在地を取得するか、地名か緯度経度を入力してください', 'error');
-    return;
-  }
+  if (latStr && lngStr) { userLat = parseFloat(latStr); userLng = parseFloat(lngStr); }
+  if (userLat === null || isNaN(userLat)) { showStatus('⚠️ 場所を設定してください', 'error'); return; }
 
   document.getElementById('grid').innerHTML = '';
   document.getElementById('sectionTitle').style.display = 'none';
@@ -421,26 +289,24 @@ async function doSearch() {
     await loadMapsAPI();
     const service = new google.maps.places.PlacesService(document.createElement('div'));
     const keyword = document.getElementById('keywordInput').value.trim();
-    const request = {
-      location: new google.maps.LatLng(userLat, userLng),
-      radius: currentRadius
-    };
+    const request = { location: new google.maps.LatLng(userLat, userLng), radius: currentRadius };
     if (keyword) request.keyword = keyword;
+
     service.nearbySearch(request, (results, status) => {
       document.getElementById('loading').classList.remove('active');
       document.getElementById('btnSearch').disabled = false;
       if (status !== google.maps.places.PlacesServiceStatus.OK || !results) {
-        showStatus('⚠️ 場所が見つかりません (' + status + ')', 'error');
-        return;
+        showStatus('⚠️ 場所が見つかりません (' + status + ')', 'error'); return;
       }
-      const withPhotos = results.filter(p => p.photos && p.photos.length > 0);
-      const sorted = withPhotos.map(p => ({
+      let filtered = results.filter(p => p.photos && p.photos.length > 0);
+      if (minRating > 0) filtered = filtered.filter(p => p.rating && p.rating >= minRating);
+      const sorted = filtered.map(p => ({
         ...p,
         dist: getDistance(userLat, userLng, p.geometry.location.lat(), p.geometry.location.lng())
       })).sort((a, b) => a.dist - b.dist).slice(0, 10);
+
       if (sorted.length === 0) {
-        showStatus('📷 写真付きの場所がありません。範囲を広げてください', 'info');
-        return;
+        showStatus('📷 条件に合う場所がありません。範囲や評価条件を変えてください', 'info'); return;
       }
       showStatus(`✓ ${sorted.length}件見つかりました`, 'ok');
       renderCards(sorted);
@@ -470,21 +336,73 @@ function renderCards(places) {
     const distText = place.dist < 1000 ? Math.round(place.dist) + 'm' : (place.dist / 1000).toFixed(1) + 'km';
     const photoUrl = place.photos[0].getUrl({ maxWidth: 400, maxHeight: 300 });
     const rating = place.rating ? '★ ' + place.rating.toFixed(1) : '';
-    const lat = place.geometry.location.lat();
-    const lng = place.geometry.location.lng();
-    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${place.place_id}`;
     card.innerHTML = `
       <img class="card-img" src="${photoUrl}" alt="" loading="lazy">
       <div class="card-body">
         <div class="card-name">${place.name}</div>
         <div class="card-dist">📍 ${distText}</div>
         ${rating ? `<div class="card-rating">${rating}</div>` : ''}
-        <div class="card-hint">→ マップで開く</div>
+        <div class="card-hint">→ タップで詳細</div>
       </div>
     `;
-    card.addEventListener('click', () => window.open(mapsUrl, '_blank'));
+    card.addEventListener('click', () => openModal(place, distText, photoUrl));
     grid.appendChild(card);
   });
+}
+
+function openModal(place, distText, photoUrl) {
+  const lat = place.geometry.location.lat();
+  const lng = place.geometry.location.lng();
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${place.place_id}`;
+
+  document.getElementById('modalImg').src = photoUrl;
+  document.getElementById('modalName').textContent = place.name;
+  document.getElementById('modalDist').textContent = '📍 ' + distText;
+  document.getElementById('modalRating').textContent = place.rating ? '★ ' + place.rating.toFixed(1) : '';
+  document.getElementById('modalCount').textContent = place.user_ratings_total ? `(${place.user_ratings_total}件)` : '';
+  document.getElementById('modalAddress').textContent = place.vicinity || '';
+  document.getElementById('modalMapBtn').onclick = () => window.open(mapsUrl, '_blank');
+
+  // 口コミを取得
+  const service = new google.maps.places.PlacesService(document.createElement('div'));
+  document.getElementById('reviewsList').innerHTML = '<div style="text-align:center;padding:12px;color:#999;font-size:13px">口コミを読み込み中...</div>';
+  document.getElementById('reviewsTitle').style.display = 'none';
+
+  service.getDetails({ placeId: place.place_id, fields: ['reviews', 'formatted_address'] }, (detail, status) => {
+    if (status === google.maps.places.PlacesServiceStatus.OK && detail) {
+      if (detail.formatted_address) {
+        document.getElementById('modalAddress').textContent = detail.formatted_address;
+      }
+      const reviews = detail.reviews || [];
+      document.getElementById('reviewsTitle').style.display = reviews.length > 0 ? 'block' : 'none';
+      if (reviews.length === 0) {
+        document.getElementById('reviewsList').innerHTML = '<div class="no-reviews">口コミがありません</div>';
+      } else {
+        document.getElementById('reviewsList').innerHTML = reviews.slice(0, 3).map(r => `
+          <div class="review">
+            <div class="review-author">👤 ${r.author_name}</div>
+            <div class="review-rating">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)} ${r.rating}.0</div>
+            <div class="review-text">${r.text || '（テキストなし）'}</div>
+            <div class="review-time">${r.relative_time_description}</div>
+          </div>
+        `).join('');
+      }
+    } else {
+      document.getElementById('reviewsList').innerHTML = '<div class="no-reviews">口コミを取得できませんでした</div>';
+    }
+  });
+
+  document.getElementById('modalOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModalBtn();
+}
+
+function closeModalBtn() {
+  document.getElementById('modalOverlay').classList.remove('active');
+  document.body.style.overflow = '';
 }
 </script>
 </body>
