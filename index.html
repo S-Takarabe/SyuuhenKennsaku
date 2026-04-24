@@ -143,28 +143,27 @@
     <input class="input" id="placeQuery" placeholder="例: 東京駅、渋谷">
     <button class="btn" onclick="searchByName()">設定</button>
   </div>
-  <div class="label">📐 緯度・経度</div>
-  <div class="row">
-    <input class="input" id="latInput" placeholder="緯度 35.6812">
-    <input class="input" id="lngInput" placeholder="経度 139.7671">
-  </div>
-  <details>
-    <summary>▸ 緯度経度の調べ方</summary>
-    <div class="help">
-      1. Googleマップで場所を長押し<br>
-      2. 下に出る数字（例: <code>35.6812, 139.7671</code>）をタップしてコピー<br>
-      3. このアプリに貼り付け
-    </div>
-  </details>
   <div class="section-divider"></div>
   <div class="label">検索範囲</div>
-  <div class="radius-row">
+  <div class="radius-row" id="radiusRow">
     <div class="chip" onclick="setRadius(50,this)">50m</div>
     <div class="chip" onclick="setRadius(200,this)">200m</div>
     <div class="chip active" onclick="setRadius(500,this)">500m</div>
     <div class="chip" onclick="setRadius(1000,this)">1km</div>
     <div class="chip" onclick="setRadius(2000,this)">2km</div>
     <div class="chip" onclick="setRadius(5000,this)">5km</div>
+  </div>
+  <div class="label" style="margin-top:14px">🧭 方向フィルター</div>
+  <div class="radius-row" id="dirRow">
+    <div class="chip active" onclick="setDirection(null,this)">すべて</div>
+    <div class="chip" onclick="setDirection(0,this)">北</div>
+    <div class="chip" onclick="setDirection(45,this)">北東</div>
+    <div class="chip" onclick="setDirection(90,this)">東</div>
+    <div class="chip" onclick="setDirection(135,this)">南東</div>
+    <div class="chip" onclick="setDirection(180,this)">南</div>
+    <div class="chip" onclick="setDirection(225,this)">南西</div>
+    <div class="chip" onclick="setDirection(270,this)">西</div>
+    <div class="chip" onclick="setDirection(315,this)">北西</div>
   </div>
   <div class="label" style="margin-top:14px">⭐ 最低評価</div>
   <div class="star-row">
@@ -225,6 +224,7 @@
 
 <script>
 let currentRadius = 500;
+let currentDirection = null;
 let minRating = 0;
 let userLat = null, userLng = null;
 let apiKey = '';
@@ -258,8 +258,26 @@ window.addEventListener('DOMContentLoaded', loadSavedApiKey);
 
 function setRadius(r, el) {
   currentRadius = r;
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('#radiusRow .chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
+}
+function setDirection(d, el) {
+  currentDirection = d;
+  document.querySelectorAll('#dirRow .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+function getBearing(lat1, lng1, lat2, lng2) {
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const lat1R = lat1 * Math.PI / 180, lat2R = lat2 * Math.PI / 180;
+  const y = Math.sin(dLng) * Math.cos(lat2R);
+  const x = Math.cos(lat1R) * Math.sin(lat2R) - Math.sin(lat1R) * Math.cos(lat2R) * Math.cos(dLng);
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+}
+function isInDirection(bearing) {
+  if (currentDirection === null) return true;
+  let diff = Math.abs(bearing - currentDirection);
+  if (diff > 180) diff = 360 - diff;
+  return diff <= 22.5;
 }
 function setMinRating(r, el) {
   minRating = r;
@@ -306,8 +324,6 @@ function useGPS() {
   navigator.geolocation.getCurrentPosition(
     pos => {
       userLat = pos.coords.latitude; userLng = pos.coords.longitude;
-      document.getElementById('latInput').value = userLat.toFixed(6);
-      document.getElementById('lngInput').value = userLng.toFixed(6);
       showStatus(`✓ 現在地を設定しました (${userLat.toFixed(4)}, ${userLng.toFixed(4)})`, 'ok');
     },
     err => {
@@ -331,8 +347,6 @@ async function searchByName() {
       if (status === 'OK' && results[0]) {
         const loc = results[0].geometry.location;
         userLat = loc.lat(); userLng = loc.lng();
-        document.getElementById('latInput').value = userLat.toFixed(6);
-        document.getElementById('lngInput').value = userLng.toFixed(6);
         showStatus(`✓ ${results[0].formatted_address}`, 'ok');
       } else { showStatus('⚠️ 場所が見つかりません: ' + status, 'error'); }
     });
@@ -340,10 +354,7 @@ async function searchByName() {
 }
 async function doSearch() {
   if (!getApiKey()) return;
-  const latStr = document.getElementById('latInput').value.trim();
-  const lngStr = document.getElementById('lngInput').value.trim();
-  if (latStr && lngStr) { userLat = parseFloat(latStr); userLng = parseFloat(lngStr); }
-  if (!userLat || isNaN(userLat)) { showStatus('⚠️ 場所を設定してください', 'error'); return; }
+  if (!userLat || isNaN(userLat)) { showStatus('⚠️ GPSまたは地名で場所を設定してください', 'error'); return; }
   document.getElementById('grid').innerHTML = '';
   document.getElementById('sectionTitle').style.display = 'none';
   document.getElementById('loading').classList.add('active');
@@ -372,7 +383,11 @@ async function doSearch() {
     if (!places || places.length === 0) { showStatus('📷 条件に合う場所がありません', 'info'); return; }
     let filtered = places.filter(p => p.photos && p.photos.length > 0);
     if (minRating > 0) filtered = filtered.filter(p => p.rating && p.rating >= minRating);
-    filtered.forEach(p => { p._dist = getDistance(userLat, userLng, p.location.lat(), p.location.lng()); });
+    filtered.forEach(p => {
+      p._dist = getDistance(userLat, userLng, p.location.lat(), p.location.lng());
+      p._bearing = getBearing(userLat, userLng, p.location.lat(), p.location.lng());
+    });
+    filtered = filtered.filter(p => isInDirection(p._bearing));
     const sorted = filtered.sort((a, b) => a._dist - b._dist).slice(0, 10);
     if (sorted.length === 0) { showStatus('📷 条件に合う場所がありません', 'info'); return; }
     showStatus(`✓ ${sorted.length}件見つかりました`, 'ok');
