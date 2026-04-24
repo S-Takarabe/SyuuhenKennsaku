@@ -127,13 +127,16 @@
 </header>
 
 <div class="panel">
-  <div class="label">Google Maps APIキー</div>
-  <input class="input" id="apiKey" type="password" placeholder="AIza..." autocomplete="off">
-  <div class="key-actions">
-    <button class="btn-sm" onclick="saveApiKey()">保存</button>
-    <button class="btn-sm btn-sm-ghost" onclick="clearApiKey()">クリア</button>
-    <span class="key-saved-badge" id="keySavedBadge">✓ 保存済み</span>
-  </div>
+  <details id="apiKeySection">
+    <summary id="apiKeySummary" style="cursor:pointer;font-size:13px;font-weight:700;color:var(--accent);padding:4px 0;list-style:none;display:flex;align-items:center;gap:6px">🔑 APIキー未設定</summary>
+    <div style="margin-top:10px">
+      <input class="input" id="apiKey" type="password" placeholder="AIza..." autocomplete="off">
+      <div class="key-actions">
+        <button class="btn-sm" onclick="saveApiKey()">保存</button>
+        <button class="btn-sm btn-sm-ghost" onclick="clearApiKey()">クリア</button>
+      </div>
+    </div>
+  </details>
   <div class="section-divider"></div>
   <div class="label">📍 現在地を使う</div>
   <button class="btn btn-ghost" onclick="useGPS()" style="width:100%">GPSで現在地を取得</button>
@@ -233,24 +236,37 @@ let currentMapsUrl = '';
 
 const LS_KEY = 'gmaps_api_key';
 
+function updateApiKeySummary(saved) {
+  const summary = document.getElementById('apiKeySummary');
+  const section = document.getElementById('apiKeySection');
+  if (saved) {
+    summary.textContent = '🔑 APIキー設定済み ✓';
+    section.removeAttribute('open');
+  } else {
+    summary.textContent = '🔑 APIキー未設定（タップして入力）';
+    section.setAttribute('open', '');
+  }
+}
 function loadSavedApiKey() {
   const saved = localStorage.getItem(LS_KEY);
   if (saved) {
     document.getElementById('apiKey').value = saved;
-    document.getElementById('keySavedBadge').classList.add('visible');
+    updateApiKeySummary(true);
+  } else {
+    updateApiKeySummary(false);
   }
 }
 function saveApiKey() {
   const val = document.getElementById('apiKey').value.trim();
   if (!val) { showStatus('⚠️ APIキーを入力してください', 'error'); return; }
   localStorage.setItem(LS_KEY, val);
-  document.getElementById('keySavedBadge').classList.add('visible');
+  updateApiKeySummary(true);
   showStatus('✓ APIキーを保存しました', 'ok');
 }
 function clearApiKey() {
   localStorage.removeItem(LS_KEY);
   document.getElementById('apiKey').value = '';
-  document.getElementById('keySavedBadge').classList.remove('visible');
+  updateApiKeySummary(false);
   showStatus('APIキーを削除しました', 'info');
 }
 
