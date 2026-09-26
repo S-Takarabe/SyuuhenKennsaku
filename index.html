@@ -477,7 +477,7 @@ function renderPhotos(photos) {
     photoGrid.innerHTML = '<div class="no-content">写真がありません</div>';
     return;
   }
-  photos.slice(0, 10).forEach((p, i) => {
+  photos.slice(0, 11).forEach((p, i) => {
     const img = document.createElement('img');
     img.src = p.getURI({ maxWidth: 600, maxHeight: 400 });
     img.loading = 'lazy';
