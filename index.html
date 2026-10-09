@@ -82,9 +82,10 @@
   .tab-pane.active { display: block; }
 
   /* 写真タブ */
-  .photo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 12px; }
-  .photo-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; cursor: pointer; }
-  .photo-grid img:first-child { grid-column: 1 / -1; aspect-ratio: 16/9; }
+  .photo-featured { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; background: var(--border); }
+  .photo-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; padding: 6px 12px 12px; }
+  .photo-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 4px; cursor: pointer; opacity: 0.7; border: 2px solid transparent; }
+  .photo-grid img.selected { opacity: 1; border-color: var(--accent); }
 
   /* 口コミタブ */
   .reviews-wrap { padding: 12px; }
@@ -212,6 +213,7 @@
 
     <div class="tab-content">
       <div class="tab-pane active" id="tab-photos">
+        <img id="photoFeatured" class="photo-featured">
         <div class="photo-grid" id="photoGrid"></div>
       </div>
       <div class="tab-pane" id="tab-reviews">
@@ -489,15 +491,27 @@ function openModal(place, distText) {
 
 function renderPhotos(photos) {
   const photoGrid = document.getElementById('photoGrid');
+  const featured = document.getElementById('photoFeatured');
   photoGrid.innerHTML = '';
+  featured.src = '';
+  featured.style.display = 'none';
   if (!photos || photos.length === 0) {
     photoGrid.innerHTML = '<div class="no-content">写真がありません</div>';
     return;
   }
-  photos.slice(0, 11).forEach((p, i) => {
+  const list = photos.slice(0, 10);
+  featured.src = list[0].getURI({ maxWidth: 800, maxHeight: 600 });
+  featured.style.display = 'block';
+  list.forEach((p, i) => {
     const img = document.createElement('img');
-    img.src = p.getURI({ maxWidth: 600, maxHeight: 400 });
+    img.src = p.getURI({ maxWidth: 200, maxHeight: 200 });
     img.loading = 'lazy';
+    if (i === 0) img.classList.add('selected');
+    img.addEventListener('click', () => {
+      featured.src = p.getURI({ maxWidth: 800, maxHeight: 600 });
+      photoGrid.querySelectorAll('img').forEach(t => t.classList.remove('selected'));
+      img.classList.add('selected');
+    });
     photoGrid.appendChild(img);
   });
 }
